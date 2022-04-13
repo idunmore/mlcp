@@ -1,0 +1,13 @@
+[package]
+name = "mlcp"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glob = "0.3.0"
+clap = { version = "3.1.8", features = ["derive"] }
+indicatif = { version = " 0.16.2" }
+console = { version = "0.15.0" }
+

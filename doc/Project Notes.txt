@@ -1,0 +1,38 @@
+Target Useage Template
+
+
+mlcp 0.1.0
+Music Library Crud Purge - Purge, or backup, "crud" files from a specified music library
+
+USAGE:
+    mlcp [OPTIONS] <LIBRARY_PATH> [BACKUP_PATH]
+
+ARGS:
+    <LIBRARY_PATH>    Root folder for the music library to be purged
+    <BACKUP_PATH>     Root folder for backing up purged files
+
+OPTIONS:
+    -d, --delete-art          Delete folder-level album art
+    -h, --help                Print help information
+    -k, --keep-other-audio    Keep other (non-music) audio files
+    -l, --list-types          List "music" vs. "audio" file types
+    -p, --purge               Perform the actual file purge
+    -v, --verbose             Enables verbose output
+    -V, --version             Print version information
+
+// ************************************************************************** //
+Plans:
+
+v1.1:
+
+Add/change the following options:
+
+ -a, --art              - Purge Album Art
+ -d, --documents        - Keep Documention (.txt, .pdf)
+ -o, --other-audio      - Keep other (non-music) audio files
+
+    -a, --art           - Delete folder-level album art
+    -d, --documents     - Keep documentation (.txt, .pdf)
+    -o, --other_audio   - Keep other (non-music) audio files
+
+
