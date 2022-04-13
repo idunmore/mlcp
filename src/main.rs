@@ -182,7 +182,7 @@ fn main() {
         let msg = opt_osstr_to_string(file.file_name(), NO_FILE_NAME);
         // Process the file
         match purge_or_backup_file(&file, &source_dir, &backup_dir, backup_enabled, args.purge) {
-            Ok(p) => { if args.verbose { println!("[{}] {}", op, file.display() ); } },
+            Ok(p) => { if args.verbose { println!("[{}] {}", op, p.display() ); } },
             Err(e) => {
                 err_count += 1;
                 print_verbose(
