@@ -10,16 +10,22 @@ use console::style;
 
 use clap::{Parser};
 
-// Significant File Types
+// Significant File Types ...__rust_force_expr!
+
+// File extensions typically associated with music/album files.
 const MUSIC_FILE_TYPES: [&str; 17] = [
     "aac", "aiff", "ape", "dff", "dsd", "dsf", "dxd", "flac", "iso", "m4a",
     "m4p", "mp3", "oga", "ogg", "wav", "wma", "wmv"
 ];
 
-const AUDIO_FILE_TYPES: [&str; 28 ] = [
+// File extensions typically associated with non-music audio files.
+const AUDIO_FILE_TYPES: [&str; 28] = [
     "3gp", "aa", "aax", "act", "amr", "au", "awb", "dct", "dss", "dvf", "gsm", "iklax", "ivs",
     "m4b","mmf", "mpc","msv","mogg", "opus","ra","rm","raw","sln","tta", "vox","wmv","wv","webm"
 ];
+
+// Common document/booklet file extensions.
+const DOCUMENT_FILE_TYPES: [&str; 2] = [ "txt", "pdf"];
 
 // Alburm Art Filenames (Folder Level)
 const ALBUM_ART_FILENAMES: [&str; 9] = ["album", "cover", "small_cover", "large_cover", "folder",
@@ -54,8 +60,8 @@ const PATH_DOES_NOT_EXIST: i32 = 1;
 /// Music Library Crud Purge - Purge, or backup, "crud" files from a specified music library.
 /// 
 /// "Crud" files are any file that isn't one of the types designated to keep.
-/// By default, this will delete any non-music file (see --list_types), but will
-/// preserve folder-level album art.
+/// By default, this will delete any non-music files and document/booklet files
+/// (see --list_types) but will PRESERVE folder-level album art.
 /// 
 /// Unless the --purge option is specified, NO changes to the library will occur!
 /// This allows simulation of the purge/backup process to see what files will
@@ -87,13 +93,13 @@ struct Args {
     #[clap(short, long, conflicts_with="list-types")]
     purge: bool,
 
-    /// Delete folder-level album art.
+    /// Purge folder-level album art.
     /// 
-    /// Causes folder-level album art to be deleted; useful if space is at a
+    /// Causes folder-level album art to be purged; useful if space is at a
     /// premium (or when all files have embedded art and the folder-level files
-    /// are holdovers from a download).
+    /// are holdovers from a download.
     #[clap(short, long, conflicts_with="list-types")]
-    delete_art: bool,
+    art: bool,
 
     /// Keep other (non-music) audio files.
     /// 
@@ -101,12 +107,20 @@ struct Args {
     /// to store music.  By default, such files are DELETED (or backed up, if
     /// the -b | --backup flag is specified).
     #[clap(short, long, conflicts_with="list-types")]
-    keep_other_audio: bool,
+    other_audio: bool,
+
+    /// Keep document/booklet files (e.g. .txt, .pdf).
+    ///
+    /// Document/booklet files are often found in digital downloads, and are
+    /// purged by default.  This option keeps those files intact.
+    #[clap(short, long, conflicts_with="list-types")]
+    documents: bool,
 
     /// List "music" vs. "audio" file types.
     /// 
     /// Lists both the "Music" files types, which are NEVER purged (green), as
-    ///  well as "other Audio" file types - which are DELETED by default (red).
+    /// well as "other Audio" and "Document" file types - which are
+    /// DELETED by default (red).
     #[clap(short, long)]
     list_types: bool,
 
@@ -154,7 +168,7 @@ fn main() {
 
     // Build the PURGE file list ...
     let purge_file_list = 
-        build_purge_file_list(library_paths, args.delete_art, args.keep_other_audio);   
+        build_purge_file_list(library_paths, args.art, args.other_audio, args.documents);   
     // ... and process the resultant files ...    
     
     // Option to wrap the progress bar, so we can optionally create it based
@@ -228,10 +242,11 @@ fn get_library_paths(library_path: &str) -> Vec<PathBuf> {
     lib_paths
 }
 
-// Output the list of file types (extensions), for Music and Audio files.
+// Output the list of file types (extensions), for Music, Audio and Document files.
 fn list_types() {
    print_list("Music file types: ", &MUSIC_FILE_TYPES, true);
-   print_list("Audio file types: ", &AUDIO_FILE_TYPES, false);  
+   print_list("Audio file types: ", &AUDIO_FILE_TYPES, false);
+   print_list("Document/booklet file types: ", &DOCUMENT_FILE_TYPES, false); 
 }
 
 // Build the list of Album Art files to keep.
@@ -248,14 +263,22 @@ fn build_keep_art_file_list(delete_art: bool) -> Vec<String> {
 }
 
 // Builds the potential list of file extensions that we will be keeping.
-fn build_keep_extensions_list(keep_other_audio: bool) -> Vec<String> {
+fn build_keep_extensions_list(keep_other_audio: bool, keep_documents: bool) -> Vec<String> {
     let mut keep_extensions = Vec::new();
     // We always include the MUSIC file types.
     for ext in MUSIC_FILE_TYPES { keep_extensions.push(String::from(ext)) }
+    
     // Add AUDIO file types, if we are keeping them.
     if keep_other_audio {
         for other_ext in AUDIO_FILE_TYPES {
             keep_extensions.push(String::from(other_ext));
+        }
+    }
+    
+    // Add DOCUMENT file types, if we are keeping them.
+    if keep_documents {
+        for doc_ext in DOCUMENT_FILE_TYPES {
+            keep_extensions.push(String::from(doc_ext));
         }
     }
     keep_extensions
@@ -263,9 +286,13 @@ fn build_keep_extensions_list(keep_other_audio: bool) -> Vec<String> {
 
 // Get the list of extensions that we are intending to keep AND that ACTUALLY
 // exist in the library.  
-fn get_actual_extensions(library_paths: &Vec<PathBuf>, keep_other_audio: bool) -> Vec<String> {
+fn get_actual_extensions(
+    library_paths: &Vec<PathBuf>,
+    keep_other_audio: bool,
+    keep_documents: bool,
+) -> Vec<String> {
     // Build the list of extensions we want to keep, if they exist.
-    let keep_extensions = build_keep_extensions_list(keep_other_audio);
+    let keep_extensions = build_keep_extensions_list(keep_other_audio, keep_documents);
 
     // Now create a list of the extensions that ACTUALLY exist in the library.
     let mut extensions = Vec::new();
@@ -285,14 +312,15 @@ fn get_actual_extensions(library_paths: &Vec<PathBuf>, keep_other_audio: bool) -
 fn build_purge_file_list(
     library_paths: Vec<PathBuf>,
     delete_art: bool,
-    keep_other_audio: bool
+    keep_other_audio: bool,
+    keep_documents: bool,
 ) -> Vec<PathBuf> {
     let mut purge_file_list = Vec::new();
 
     // Get the list of art files and extensions we'll be keeping.
     let art_file_list = build_keep_art_file_list(delete_art);    
     // Get the list of actual extensions we will retain.
-    let actual_extensions = get_actual_extensions( &library_paths, keep_other_audio);
+    let actual_extensions = get_actual_extensions( &library_paths, keep_other_audio, keep_documents);
     
     for file in library_paths {
         // Skip the file if it is a directory.

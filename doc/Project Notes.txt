@@ -1,38 +1,30 @@
-Target Useage Template
+Target Usage Template:
 
+    mlcp 0.2.0
+    Ian Dunmore
+    Music Library Crud Purge - Purges non-music files ('crud') from music libraries.
 
-mlcp 0.1.0
-Music Library Crud Purge - Purge, or backup, "crud" files from a specified music library
+    USAGE:
+        mlcp [OPTIONS] <LIBRARY_PATH> [BACKUP_PATH]
 
-USAGE:
-    mlcp [OPTIONS] <LIBRARY_PATH> [BACKUP_PATH]
+    ARGS:
+        <LIBRARY_PATH>    Root folder for the music library to be purged
+        <BACKUP_PATH>     Root folder for backing up purged files
 
-ARGS:
-    <LIBRARY_PATH>    Root folder for the music library to be purged
-    <BACKUP_PATH>     Root folder for backing up purged files
+    OPTIONS:
+        -a, --art            Purge folder-level album art
+        -d, --documents      Keep document/booklet files (e.g. .txt, .pdf)
+        -h, --help           Print help information
+        -l, --list-types     List "music" vs. "audio" file types
+        -o, --other-audio    Keep other (non-music) audio files
+        -p, --purge          Perform the actual file purge
+        -v, --verbose        Enables verbose output
+        -V, --version        Print version information
 
-OPTIONS:
-    -d, --delete-art          Delete folder-level album art
-    -h, --help                Print help information
-    -k, --keep-other-audio    Keep other (non-music) audio files
-    -l, --list-types          List "music" vs. "audio" file types
-    -p, --purge               Perform the actual file purge
-    -v, --verbose             Enables verbose output
-    -V, --version             Print version information
+---
 
-// ************************************************************************** //
-Plans:
+Future considerations:
 
-v1.1:
-
-Add/change the following options:
-
- -a, --art              - Purge Album Art
- -d, --documents        - Keep Documention (.txt, .pdf)
- -o, --other-audio      - Keep other (non-music) audio files
-
-    -a, --art           - Delete folder-level album art
-    -d, --documents     - Keep documentation (.txt, .pdf)
-    -o, --other_audio   - Keep other (non-music) audio files
-
-
+    ? Make album-art deletion the default case, so that the -a, -d and -o
+      are all consistent in KEEPING files that are otherwise deleted by
+      default ?
