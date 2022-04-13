@@ -68,7 +68,7 @@ const PATH_DOES_NOT_EXIST: i32 = 1;
 /// be affected.
 #[clap(author, version, about)]
 struct Args {    
-    /// Root folder for the music library to be purged.
+    /// Root folder for the music library to be purged
     /// 
     /// All sub-folders will be processed recursively; specifying the root of
     /// the library will process all files in the library.  You can process a 
@@ -76,7 +76,7 @@ struct Args {
     #[clap(required=true, conflicts_with="list-types")]
     library_path: Option<String>,
     
-    /// Root folder for backing up purged files.
+    /// Root folder for backing up purged files
     /// 
     /// If [BACKUP_PATH] is specified, files are moved here instead of deleted.
     /// The original folder structure is preserved, so they can be merged back
@@ -101,7 +101,7 @@ struct Args {
     #[clap(short, long, conflicts_with="list-types")]
     art: bool,
 
-    /// Keep other (non-music) audio files.
+    /// Keep other (non-music) audio files
     /// 
     /// "Other" audio files are any audio file type that is not commonly used
     /// to store music.  By default, such files are DELETED (or backed up, if
@@ -116,7 +116,7 @@ struct Args {
     #[clap(short, long, conflicts_with="list-types")]
     documents: bool,
 
-    /// List "music" vs. "audio" file types.
+    /// List "music" vs. "audio" file types
     /// 
     /// Lists both the "Music" files types, which are NEVER purged (green), as
     /// well as "other Audio" and "Document" file types - which are
@@ -124,11 +124,11 @@ struct Args {
     #[clap(short, long)]
     list_types: bool,
 
-    /// Enables verbose output.
+    /// Enables verbose output
     /// 
     /// Outputs the full path of every file or folder that is touched,
     /// along with the operation performed on it: PURGED (deleted), MOVED
-    /// (backed-up), DIR (directory;not touched), RES (resource, skipped)
+    /// (backed-up), DIR (directory;not touched), RES (resource, skipped).
     #[clap(short, long, conflicts_with="list-types")]
     verbose: bool,
 }
