@@ -10,7 +10,7 @@ use console::style;
 
 use clap::{Parser};
 
-// Significant File Types ...__rust_force_expr!
+// Significant File Types ...
 
 // File extensions typically associated with music/album files.
 const MUSIC_FILE_TYPES: [&str; 17] = [
