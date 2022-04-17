@@ -59,8 +59,8 @@ const PATH_DOES_NOT_EXIST: i32 = 1;
 #[derive(Parser, Debug)]
 /// Music Library Crud Purge - Purge, or backup, "crud" files from a specified music library.
 /// 
-/// "Crud" files are any file that isn't one of the types designated to keep.
-/// By default, this will delete any non-music files and document/booklet files
+/// "Crud" files are files that aren't one of the types designated to keep.
+/// By default, this will delete all non-music files and document/booklet files
 /// (see --list_types) but will PRESERVE folder-level album art.
 /// 
 /// Unless the --purge option is specified, NO changes to the library will occur!
