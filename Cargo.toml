@@ -1,6 +1,6 @@
 [package]
 name = "mlcp"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["Ian Dunmore"]
 description ="Music Library Crud Purge - Purges non-music files ('crud') from music libraries."
