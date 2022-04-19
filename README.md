@@ -65,3 +65,30 @@ OPTIONS:
  * The "--help" option will provide more detailed help information than just using "-h".
 
  * If [BACKUP_PATH] is specified, then "crud" files will be backed-up to that location, using the same folder structure as the <LIBRARY_PATH>, prior to being purged from the library.  If a file cannot be backed-up, it will **not** be deleted from the library.
+
+ * If a path contains folders with spaces in the names, place qoutes around the path name (e.g., "~/Users/jsmith/My Music Library").
+
+<br>
+
+### Usage Examples:
+
+<br>
+List all the files that would be purged, by default, for the music library located in the "~/users/jsmith/music" folder:
+
+<pre><code>mlcp ~/users/jsmith/music -v</code></pre>
+
+Purge all default "crud" files, for the music library located in the "~/users/jsmith/music" folder:
+
+<pre><code>mlcp ~/users/jsmith/music -p</code></pre>
+
+Backup all "crud" files to the folder "//Volumes/Backup/music" for the library located in "~/users/jsmith/music":
+
+<pre><code>mlcp ~/users/jsmith/music //Volumes/Backup/music --purge</code></pre>
+
+The same as the above, but *keeping* documentation/booklets in the library, and listing every file that is backed-up:
+
+<pre><code>mlcp ~/users/jsmith/music //Volumes/Backup/music -p -d -v</code></pre>
+
+To remove the maximum amount of non-music "crud" files, without backing them up, for the library located at: "~/users/jsmith/music".  Note that this will remove all folder-level album art, so art will not be displayed by your player software or device unless it is embedded in the individual music files.
+
+<pre><code>mlcp ~/users/jsmith/music --art</code></pre>

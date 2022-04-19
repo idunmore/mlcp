@@ -1,3 +1,8 @@
+// mlcp - Music Library "Crud" Purge - Copyright (C) 2022, Ian Dunmore
+//
+// Free and open-source software, published under the MIT license; see
+// LICENSE file for more details.
+
 use glob::glob;
 use std::fs;
 use std::path::{Path, PathBuf};

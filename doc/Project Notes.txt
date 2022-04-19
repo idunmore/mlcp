@@ -1,6 +1,6 @@
 Target Usage Template:
 
-    mlcp 0.2.0
+    mlcp 0.3.0
     Ian Dunmore
     Music Library Crud Purge - Purges non-music files ('crud') from music libraries.
 
@@ -20,11 +20,4 @@ Target Usage Template:
         -p, --purge          Perform the actual file purge
         -v, --verbose        Enables verbose output
         -V, --version        Print version information
-
----
-
-Future considerations:
-
-    ? Make album-art deletion the default case, so that the -a, -d and -o
-      are all consistent in KEEPING files that are otherwise deleted by
-      default ?
+        
