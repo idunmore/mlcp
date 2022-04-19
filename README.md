@@ -73,6 +73,7 @@ OPTIONS:
 ### Usage Examples:
 
 <br>
+
 List all the files that would be purged, by default, for the music library located in the "~/users/jsmith/music" folder:
 
 <pre><code>mlcp ~/users/jsmith/music -v</code></pre>
