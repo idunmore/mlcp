@@ -10,9 +10,7 @@ use std::process::exit;
 use std::ffi::OsStr;
 
 use indicatif::{ProgressBar, ProgressStyle};
-
 use console::style;
-
 use clap::{Parser};
 
 // Significant File Types ...
