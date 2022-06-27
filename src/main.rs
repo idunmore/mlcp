@@ -451,3 +451,78 @@ fn opt_osstr_to_string(opt_osstr: Option<&OsStr>, default: &str) -> String {
     // the wrapped Cow<str> to a normal string, allowing for lossy conversion to UTF_8
     String::from(opt_osstr.unwrap_or(OsStr::new(default)).to_string_lossy())
 }
+
+// Unit Tests
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Music and Documentation Files
+    #[test]
+    fn build_keep_extensions_list_keep_music_only() { 
+        // Keep music files, but not additional audio files or documentation ...
+        let keep_extensions = build_keep_extensions_list(false, false);
+        // ... which should just be the pure MUSIC FILE TYPES extensions.
+        assert_eq!(keep_extensions.len(), MUSIC_FILE_TYPES.len());
+    }
+
+    #[test]
+    fn build_keep_extensions_list_keep_music_and_audio() { 
+        // Keep music files, and additional audio files but no documentation ...
+        let keep_extensions = build_keep_extensions_list(true, false);
+        // ... which should just be the pure MUSIC + AUDIO extensions.
+        assert_eq!(keep_extensions.len(), MUSIC_FILE_TYPES.len() + AUDIO_FILE_TYPES.len());
+    }
+
+    #[test]
+    fn build_keep_extensions_list_keep_music_and_documentation() { 
+        // Keep music files, discard additional audio files but keep documentation ...
+        let keep_extensions = build_keep_extensions_list(false, true);
+        // ... which should just be the pure MUSIC + DOCUMENT extensions.
+        assert_eq!(
+            keep_extensions.len(),
+            MUSIC_FILE_TYPES.len() + DOCUMENT_FILE_TYPES.len()
+        );
+    }
+
+    #[test]
+    fn build_keep_extensions_list_keep_all() { 
+        // Keep music files, additional audio files and documentation ...
+        let keep_extensions = build_keep_extensions_list(true, true);
+        // ... which should  be the pure MUSIC + AUDIO + DOCUMENT extensions.
+        assert_eq!(
+            keep_extensions.len(),
+            MUSIC_FILE_TYPES.len() + AUDIO_FILE_TYPES.len() + DOCUMENT_FILE_TYPES.len()
+        );
+    }
+
+    // Art File Inclusions/Exclusions
+    #[test]
+    fn build_keep_art_file_list_keep_art() {
+        // We're not deleting art files ...
+        let keep_art_files = build_keep_art_file_list(false);
+        // ... so the file count should be the product of names and extensions.
+        assert_eq!(keep_art_files.len(), ALBUM_ART_FILENAMES.len() * ALBUM_ART_EXTENSIONS.len());
+    }
+
+    #[test]
+    fn build_keep_art_file_list_discard_art() {
+        // We're deleting art files ...
+        let keep_art_files = build_keep_art_file_list(true);
+        // ... so the "keep list" should be empty.
+        assert_eq!(keep_art_files.len(), 0);   
+    }
+
+    // File Forms
+    #[test]
+    fn is_resource_fork_is_resource() {
+        // Resource Forks start with "._"
+        assert_eq!(is_resource_fork(&"._ResourceFork"), true);
+    }
+
+    #[test]
+    fn is_resource_fork_is_not_resource() {
+        // Resource Forks start with "._"
+        assert_eq!(is_resource_fork(&"NotResourceFork"), false);
+    }
+}

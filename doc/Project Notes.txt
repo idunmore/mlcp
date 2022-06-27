@@ -1,6 +1,6 @@
 Target Usage Template:
 
-    mlcp 0.3.0
+    mlcp 0.3.2
     Ian Dunmore
     Music Library Crud Purge - Purges non-music files ('crud') from music libraries.
 
