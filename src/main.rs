@@ -517,12 +517,264 @@ mod tests {
     #[test]
     fn is_resource_fork_is_resource() {
         // Resource Forks start with "._"
-        assert_eq!(is_resource_fork(&"._ResourceFork"), true);
+        assert!(is_resource_fork(&"._ResourceFork"));
     }
 
     #[test]
     fn is_resource_fork_is_not_resource() {
         // Resource Forks start with "._"
-        assert_eq!(is_resource_fork(&"NotResourceFork"), false);
+        assert!(!is_resource_fork(&"NotResourceFork"));
+    }
+
+    #[test]
+    fn get_library_paths_should_be_four() {
+        setup_test_files();        
+        let paths = get_test_library_paths();
+        // There should be one path per file created in "setup_test_files"
+        assert_eq!(paths.len(), 4);        
+    }
+
+    #[test]
+    fn get_actual_extensions_keep_audio_and_docs() {
+        setup_test_files();
+        let extensions = get_actual_extensions(
+            &get_test_library_paths(), true, true
+        );
+        // We should get .au, .txt and .mp3 back; so three extensions
+        assert_eq!(extensions.len(), 3);
+        assert_eq!(extensions.contains(&String::from("mp3")), true);
+        assert_eq!(extensions.contains(&String::from("au")), true);
+        assert_eq!(extensions.contains(&String::from("txt")), true);
+    }
+
+    #[test]
+    fn get_actual_extensions_keep_audio_discard_docs() {
+        setup_test_files();
+        let extensions = get_actual_extensions(
+            &get_test_library_paths(), true, false
+        );
+        // We should get .au and .mp3 back; so two extensions
+        assert_eq!(extensions.len(), 2);        
+        assert_eq!(extensions.contains(&String::from("mp3")), true);
+        assert_eq!(extensions.contains(&String::from("au")), true);        
+    }
+
+    #[test]
+    fn get_actual_extensions_discard_audio_keep_docs() {
+        setup_test_files();
+        let extensions = get_actual_extensions(
+            &get_test_library_paths(), false, true
+        );
+        // We should get .txt and .mp3 back; so two extensions
+        assert_eq!(extensions.len(), 2);
+        assert_eq!(extensions.contains(&String::from("mp3")), true);
+        assert_eq!(extensions.contains(&String::from("txt")), true);
+    }
+
+    #[test]
+    fn get_actual_extensions_discard_audio_and_docs() {
+        setup_test_files();
+        let extensions = get_actual_extensions(
+            &get_test_library_paths(), false, false
+        );
+        // We should just get .mp3 back; so one extension
+        assert_eq!(extensions.len(), 1);
+        assert_eq!(extensions.contains(&String::from("mp3")), true);
+    }
+
+    #[test]
+    fn build_purge_file_list_keep_audio_art_and_docs() {
+        setup_test_files();
+        let file_list = build_purge_file_list(
+            get_test_library_paths(),
+            false,
+            true,
+            true
+        );
+        // No files should be purged.
+        assert_eq!(file_list.len(), 0);        
+    }
+
+    #[test]
+    fn build_purge_file_list_discard_audio_art_and_docs() {
+        setup_test_files();
+        let file_list = build_purge_file_list(
+            get_test_library_paths(),
+            true,
+            false,
+            false
+        );
+        // Three files should be purged (album.jpg, audio.au, doc.txt).
+        assert_eq!(file_list.len(), 3);
+        assert!(list_contains_file(&file_list, "album.jpg"));
+        assert!(list_contains_file(&file_list, "audio.au"));
+        assert!(list_contains_file(&file_list, "doc.txt"));          
+    }
+
+    #[test]
+    fn build_purge_file_list_keep_audio_discard_art_and_docs() {
+        setup_test_files();
+        let file_list = build_purge_file_list(
+            get_test_library_paths(),
+            true,
+            true,
+            false
+        );
+        // Two files should be purged (album.jpg, doc.txt).
+        assert_eq!(file_list.len(), 2);
+        assert!(list_contains_file(&file_list, "album.jpg"));
+        assert!(list_contains_file(&file_list, "doc.txt"));        
+    }
+
+    #[test]
+    fn build_purge_file_list_keep_art_discard_audio_and_docs() {
+        setup_test_files();
+        let file_list = build_purge_file_list(
+            get_test_library_paths(),
+            false,
+            false,
+            false
+        );
+        // Two files should be purged (audio.au and doc.txt).
+        assert_eq!(file_list.len(), 2);
+        assert!(list_contains_file(&file_list, "audio.au"));
+        assert!(list_contains_file(&file_list, "doc.txt"))        
+    }
+
+    #[test]
+    fn build_purge_file_list_keep_docs_discard_audio_and_art() {
+        setup_test_files();
+        let file_list = build_purge_file_list(
+            get_test_library_paths(),
+            true,
+            false,
+            true
+        );
+        // Two files should be purged (audio.au and album.jpg).
+        assert_eq!(file_list.len(), 2);
+        assert!(list_contains_file(&file_list, "audio.au"));
+        assert!(list_contains_file(&file_list, "album.jpg"));        
+    }
+
+    #[test]
+    fn backup_file_success() {
+        // Create file to test backup against.
+        let cwd = std::env::current_dir().unwrap();
+        let _ = fs::create_dir(cwd.join("tests"));
+        fs::File::create(cwd.join("tests/backup.tst")).unwrap();
+        
+        // Try the backup.
+        let _ = backup_file(
+            &PathBuf::from("tests/backup.tst"),
+            &PathBuf::from("tests/"),
+            &PathBuf::from("tests/backup/")
+        );
+
+        // Validate the file was backed up.
+        assert!(Path::new("tests/backup/backup.tst").exists());
+        fs::remove_dir_all("tests/backup").unwrap();
+        fs::remove_file("tests/backup.tst").unwrap();  
+    }
+
+    #[test]
+    fn purge_or_backup_file_backup_and_purge() {
+        // Create file to test backup against.
+        let cwd = std::env::current_dir().unwrap();
+        let _ = fs::create_dir(cwd.join("tests"));
+        fs::File::create(cwd.join("tests/backup_purge.tst")).unwrap();
+
+        // Try the backup.
+        let _ = purge_or_backup_file(
+            &PathBuf::from("tests/backup_purge.tst"),
+            &PathBuf::from("tests/"),
+            &PathBuf::from("tests/backup_purge/"),
+            true,
+            true
+        );
+        
+        // Validate the file was backed up, so the backup should exist ...
+        assert!(Path::new("tests/backup_purge/backup_purge.tst").exists());
+        // ... but the original should be gone!
+        assert!(!Path::new("tests/backup_purge.txt").exists());
+        fs::remove_dir_all("tests/backup_purge").unwrap();          
+    }
+
+    #[test]
+    fn purge_or_backup_file_purge_no_backup() {
+        // Create file to test backup against.
+        let cwd = std::env::current_dir().unwrap();
+        let _ = fs::create_dir(cwd.join("tests"));
+        fs::File::create(cwd.join("tests/purge_no_backup.tst")).unwrap();
+
+        // Try the backup.
+        let _ = purge_or_backup_file(
+            &PathBuf::from("tests/purge_no_backup.tst"),
+            &PathBuf::from("tests/"),
+            &PathBuf::from(""),
+            false,
+            true
+        );
+        
+        // Validate the file is gone!
+        assert!(!Path::new("tests/purge_no_backup.tst").exists());              
+    }
+
+    #[test]
+    fn purge_or_backup_file_no_purge() {
+        // Create file to test backup against.
+        let cwd = std::env::current_dir().unwrap();
+        let _ = fs::create_dir(cwd.join("tests"));
+        fs::File::create(cwd.join("tests/no_purge.tst")).unwrap();
+
+        // Try the backup.
+        let _ = purge_or_backup_file(
+            &PathBuf::from("tests/no_purge.tst"),
+            &PathBuf::from("tests/"),
+            &PathBuf::from(""),
+            false,
+            false
+        );
+        
+        // Validate the file is untouched!
+        assert!(Path::new("tests/no_purge.tst").exists());
+        fs::remove_file("tests/no_purge.tst").unwrap();       
+    }
+
+    // Test Helper/Setup/Teardown Functions
+
+    // Create common test files.
+    fn setup_test_files() { 
+        // Tests can be called in parallel, so each must do its own setup
+        // but we don't actually want to create the files every time,
+        // so only do it the first time it is called.   
+        static SETUP: std::sync::Once = std::sync::Once::new();
+        
+        SETUP.call_once(|| {
+            // Create a "Tests" directory in the current working directory
+            let cwd = std::env::current_dir().unwrap();        
+            let _ = fs::create_dir(cwd.join("tests/library"));
+
+            // Add one file each for the MUSIC, AUDIO, DOC and ART categories.       
+            fs::File::create(cwd.join("tests/library/music.mp3")).unwrap();
+            fs::File::create(cwd.join("tests/library/audio.au")).unwrap();
+            fs::File::create(cwd.join("tests/library/doc.txt")).unwrap();
+            fs::File::create(cwd.join("tests/library/album.jpg")).unwrap();
+        });          
+    }
+
+    // Get the library paths for various tests.
+    fn get_test_library_paths() -> Vec<PathBuf> {
+        let cwd = std::env::current_dir().unwrap();
+        let test_path = cwd.join("tests/library/");
+        let lib_path = test_path.to_str().unwrap();
+        get_library_paths(&lib_path)
+    }
+
+    // Determine if a list of paths contains a specific file.
+    fn list_contains_file(paths: &Vec<PathBuf>, filename: &str ) -> bool {        
+        for path in paths {
+            if path.ends_with(filename) { return true; }          
+        }
+        false        
     }
 }
