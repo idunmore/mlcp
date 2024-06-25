@@ -181,7 +181,7 @@ fn main() {
    
     if let Some(b) = &bar {
         b.set_style(ProgressStyle::default_bar()
-            .template("{spinner} {bar:20.cyan/blue} {pos:>7}/{len:7} {msg:40!}"));
+            .template("{spinner} {bar:20.cyan/blue} {pos:>7}/{len:7} {msg:40!}").unwrap());
     }    
     
     // Get PathBuf instances for the two path strings ...
